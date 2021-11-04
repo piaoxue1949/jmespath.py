@@ -135,7 +135,7 @@ class TreeInterpreter(Visitor):
         try:
             return value.get(node['value'])
         except AttributeError:
-            return None
+            return getattr(value, node['value'], None)
 
     def visit_comparator(self, node, value):
         # Common case: comparator is == or !=
@@ -224,6 +224,26 @@ class TreeInterpreter(Visitor):
     def visit_key_val_pair(self, node, value):
         return self.visit(node['children'][0], value)
 
+    def visit_residue_pairs(self, node, value):
+        exclude_keys = node['children']
+        collected = {}
+        try:
+            if isinstance(value, dict):
+                for key, value in value.items():
+                    if key in exclude_keys:
+                        continue
+                    collected[key] = value
+            else:
+                for key, value in value.__dict__.items():
+                    if key in exclude_keys or key.startwith('_'):
+                        continue
+                    value = getattr(value, key)
+                    if value:
+                        collected[key] = value
+        except Exception as e:
+            pass
+        return collected
+
     def visit_literal(self, node, value):
         return node['value']
 
@@ -232,7 +252,10 @@ class TreeInterpreter(Visitor):
             return None
         collected = self._dict_cls()
         for child in node['children']:
-            collected[child['value']] = self.visit(child, value)
+            if child['type'] == 'residue_pairs':
+                collected.update(**self.visit(child, value))
+            else:
+                collected[child['value']] = self.visit(child, value)
         return collected
 
     def visit_multi_select_list(self, node, value):

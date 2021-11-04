@@ -370,17 +370,25 @@ class Parser(object):
 
     def _parse_multi_select_hash(self):
         pairs = []
+        exclude_keys = []
         while True:
             key_token = self._lookahead_token(0)
             # Before getting the token value, verify it's
             # an identifier.
-            self._match_multiple_tokens(
-                token_types=['quoted_identifier', 'unquoted_identifier'])
-            key_name = key_token['value']
-            self._match('colon')
-            value = self._expression(0)
-            node = ast.key_val_pair(key_name=key_name, node=value)
-            pairs.append(node)
+            if key_token['type'] == 'star':
+                node = ast.residue_pairs(exclude_keys=exclude_keys)
+                pairs.append(node)
+                self._match('star')
+            else:
+                self._match_multiple_tokens(
+                    token_types=['quoted_identifier', 'unquoted_identifier'])
+                key_name = key_token['value']
+                self._match('colon')
+                value = self._expression(0)
+                node = ast.key_val_pair(key_name=key_name, node=value)
+                if value['type'] == 'field':
+                    exclude_keys.append(value['value'])
+                pairs.append(node)
             if self._current_token() == 'comma':
                 self._match('comma')
             elif self._current_token() == 'rbrace':

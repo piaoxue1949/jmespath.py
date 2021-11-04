@@ -46,6 +46,10 @@ def key_val_pair(key_name, node):
     return {"type": "key_val_pair", 'children': [node], "value": key_name}
 
 
+def residue_pairs(exclude_keys):
+    return {"type": "residue_pairs", 'children': exclude_keys}
+
+
 def literal(literal_value):
     return {'type': 'literal', 'value': literal_value, 'children': []}
 

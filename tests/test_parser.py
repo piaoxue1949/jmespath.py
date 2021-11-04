@@ -97,6 +97,16 @@ class TestParser(unittest.TestCase):
         result = parsed.search({'foo': {'bar': {'baz': 'CORRECT'}, 'qux': 'qux'}})
         self.assertEqual(result, {"bar": "CORRECT", "qux": "qux"})
 
+    def test_multiselect_with_key_and_star(self):
+        parsed = self.parser.parse('foo.{"foo1": "foo", "bar1": bar.baz, *}')
+        result = parsed.search({'foo': {'foo': 'foo', 'bar': {'baz': 'CORRECT'}, 'qux': 'qux', 'uxp': {'uxp': 'aaa'}}})
+        self.assertEqual(result, {'bar': {'baz': 'CORRECT'}, 'bar1': 'CORRECT', 'foo1': 'foo', 'qux': 'qux', 'uxp': {'uxp': 'aaa'}})
+
+    def test_multiselect_with_only_star(self):
+        parsed = self.parser.parse('foo.{*}')
+        result = parsed.search({'foo': {'bar': {'baz': 'CORRECT'}, 'qux': 'qux'}})
+        self.assertEqual(result, {'bar': {'baz': 'CORRECT'}, 'qux': 'qux'})
+
     def test_function_call_with_and_statement(self):
         self.assert_parsed_ast(
             'f(@ && @)',
