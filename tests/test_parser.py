@@ -99,7 +99,7 @@ class TestParser(unittest.TestCase):
 
     def test_multiselect_with_key_and_star(self):
         parsed = self.parser.parse('foo.{"foo1": "foo", "bar1": bar.baz, *}')
-        result = parsed.search({'foo': {'foo': 'foo', 'bar': {'baz': 'CORRECT'}, 'qux': 'qux', 'uxp': {'uxp': 'aaa'}}})
+        result = parsed.search({'foo': {'foo': 'foo', 'foo1': 'foo1', 'bar': {'baz': 'CORRECT'}, 'qux': 'qux', 'uxp': {'uxp': 'aaa'}}})
         self.assertEqual(result, {'bar': {'baz': 'CORRECT'}, 'bar1': 'CORRECT', 'foo1': 'foo', 'qux': 'qux', 'uxp': {'uxp': 'aaa'}})
 
     def test_multiselect_with_only_star(self):

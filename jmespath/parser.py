@@ -388,6 +388,7 @@ class Parser(object):
                 node = ast.key_val_pair(key_name=key_name, node=value)
                 if value['type'] == 'field':
                     exclude_keys.append(value['value'])
+                exclude_keys.append(key_name)
                 pairs.append(node)
             if self._current_token() == 'comma':
                 self._match('comma')
